@@ -6,25 +6,26 @@ using std::cout;
 using std::cin;
 using std::endl;
 
-double func(double x, double z) {
-    return log(x) - z;
+double func(double x, void* z) {
+    return log(x) - *(double*)z;
 }
 
-double func1(double x) {
+double func1(double x, void*) {
     return log(x);
 }
 
 int main()
 try {
-    mymath::deriv_h = 1e-5;
-    mymath::solve_t = 1e-10;
-    mymath::integ_n = 100;
     srand(time(nullptr));
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
         double x = rand() * 10. / RAND_MAX, y = x + 6;
-        if (fabs(mymath::deriv(x, func1, y) * x - 1) > 1e-10) throw 1;
+        double res;
+        if (fabs(res = mymath::deriv(x, func1) * x - 1) > 1e-10) {
+            cout << res << endl;
+            throw 1;
+        }
         if (fabs(mymath::integ(1, y, func1) / (y * (log(y) - 1) + 1) - 1) > 1e-10) throw 2;
-        if (fabs(mymath::solve(0, func, y) / exp(y) - 1) > 1e-10) throw 4;
+        if (fabs(mymath::solve(0, func, &y) / exp(y) - 1) > 1e-10) throw 4;
     }
     std::vector<double> v {3,2,-5,-1,2,-1,3,13,1,2,-1,9};
     mymath::slae(&v);

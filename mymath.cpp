@@ -1,38 +1,51 @@
 #include <vector>
 #include "mymath.h"
+
+namespace mymath {
+double deriv_h = 1e-3;
+double solve_h = 1e-5;
+double solve_t = 1e-10;
+double integ_n = 100;
+};
+
 using mymath::deriv_h;
 using mymath::solve_t;
 using mymath::integ_n;
-
-//производная функции
-template <typename Func, typename... Args>
-inline double mymath::deriv(double x, Func f, Args... args) {
-    return (f(x + deriv_h, args...) - f(x - deriv_h, args...)) / (2 * deriv_h);
-}
+using mymath::solve_h;
 
 //корень уравнения
-template <typename Func, typename... Args>
-double mymath::solve(double x, Func f, Args... args) {
+double mymath::solve(double x, double (*f)(double, void*), void* args) {
     double val;
-    while (fabs(val = f(x, args...)) > solve_t) {
-        x -= val / deriv(x, f, args...);
+    while (fabs(val = f(x, args)) > solve_t) {
+        x -= val / ((f(x + solve_h, args) - f(x - solve_h, args)) / (2 * solve_h));
     }
     return x;
 }
 
+//производная функции
+double mymath::deriv(double x, double (*f)(double, void*), void* args) {
+    double sum = 0, dx;
+    dx = deriv_h;
+    sum += 0.01171875 * (f(x + dx, args) - f(x - dx, args));
+    dx = 0.6 * deriv_h;
+    sum += -0.16276041666666666 * (f(x + dx, args) - f(x - dx, args));
+    dx = 0.2 * deriv_h;
+    sum += 2.9296875 * (f(x + dx, args) - f(x - dx, args));
+    return sum / deriv_h;
+}
+
 //интеграл функции
-template <typename Func, typename... Args>
-double mymath::integ(double l, double r, Func f, Args... args) {
+double mymath::integ(double l, double r, double (*f)(double, void*), void* args) {
     const double t = (r - l) / integ_n,
         t1 = 0.5 * t;
     double res = 0, dx;
     for (double x = l + t1; x < r; x += t) {
-        dx = 0.93246951420257751 * t;
-        res += 0.17132449238057801 * (f(x - dx, args...) + f(x + dx, args...));
-        dx = 0.66120938646396499 * t;
-        res += 0.36076157304955814 * (f(x - dx, args...) + f(x + dx, args...));
-        dx = 0.23861918608139146 * t;
-        res += 0.4679139345698638 * (f(x - dx, args...) + f(x + dx, args...));
+        dx = 0.93246951420257751 * t1;
+        res += 0.17132449238057801 * (f(x - dx, args) + f(x + dx, args));
+        dx = 0.66120938646396499 * t1;
+        res += 0.36076157304955814 * (f(x - dx, args) + f(x + dx, args));
+        dx = 0.23861918608139146 * t1;
+        res += 0.4679139345698638 * (f(x - dx, args) + f(x + dx, args));
     }
     return t1 * res;
 }
