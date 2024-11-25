@@ -5,7 +5,7 @@ namespace mymath {
 double deriv_h = 1e-3;
 double solve_h = 1e-5;
 double solve_t = 1e-10;
-double integ_n = 100;
+int integ_n = 100;
 };
 
 using mymath::deriv_h;
@@ -39,13 +39,15 @@ double mymath::integ(double l, double r, double (*f)(double, void*), void* args)
     const double t = (r - l) / integ_n,
         t1 = 0.5 * t;
     double res = 0, dx;
-    for (double x = l + t1; x < r; x += t) {
+    l += t1;
+    for (int i = 0; i < integ_n; i++) {
         dx = 0.93246951420257751 * t1;
-        res += 0.17132449238057801 * (f(x - dx, args) + f(x + dx, args));
+        res += 0.17132449238057801 * (f(l - dx, args) + f(l + dx, args));
         dx = 0.66120938646396499 * t1;
-        res += 0.36076157304955814 * (f(x - dx, args) + f(x + dx, args));
+        res += 0.36076157304955814 * (f(l - dx, args) + f(l + dx, args));
         dx = 0.23861918608139146 * t1;
-        res += 0.4679139345698638 * (f(x - dx, args) + f(x + dx, args));
+        res += 0.4679139345698638 * (f(l - dx, args) + f(l + dx, args));
+        l += t;
     }
     return t1 * res;
 }

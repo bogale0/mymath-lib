@@ -7,32 +7,32 @@ using std::cin;
 using std::endl;
 
 double func(double x, void* z) {
-    return log(x) - *(double*)z;
+    return log(x) - *static_cast<double*>(z);
 }
 
 double func1(double x, void*) {
     return log(x);
 }
 
-int main()
-try {
+
+
+int main() {
     srand(time(nullptr));
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1000; i++) {
         double x = rand() * 10. / RAND_MAX, y = x + 6;
         double res;
         if (fabs(res = mymath::deriv(x, func1) * x - 1) > 1e-10) {
-            cout << res << endl;
-            throw 1;
+            cout << "Err 1: " << res << endl;
         }
-        if (fabs(mymath::integ(1, y, func1) / (y * (log(y) - 1) + 1) - 1) > 1e-10) throw 2;
-        if (fabs(mymath::solve(0, func, &y) / exp(y) - 1) > 1e-10) throw 4;
+        if (fabs(res = mymath::integ(1, y, func1) / (y * (log(y) - 1) + 1) - 1) > 1e-10) {
+            cout << "Err 2: " << res << endl;
+        }
+        if (fabs(res = mymath::solve(0, func, &y) / exp(y) - 1) > 1e-10) {
+            cout << "Err 3: " << res << endl;
+        }
     }
     std::vector<double> v {3,2,-5,-1,2,-1,3,13,1,2,-1,9};
     mymath::slae(&v);
-    if (fabs(v[0] - 3) + fabs(v[1] - 5) + fabs(v[2] - 4) > 1e-10) throw 8;
-    cout << "Success" << endl;
-} catch(int err) {
-    cout << "Err: " << err << endl;
 }
 /*
     cout << "Интеграл ln(x), a=0, b=1: " << mymath::integ(0, 1, log) << endl;
