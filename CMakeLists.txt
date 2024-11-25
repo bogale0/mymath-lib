@@ -5,9 +5,8 @@ project(mymath LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(mymath main.cpp
-    mymath.h
-    mymath.cpp)
+add_executable(mymath main.cpp)# mymath.cpp mymath.h)
+target_link_libraries(mymath libmymath.so)
 
 include(GNUInstallDirs)
 install(TARGETS mymath
