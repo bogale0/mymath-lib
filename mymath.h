@@ -2,20 +2,21 @@
 #define MYMATH_H
 
 #include <cmath>
-#include <vector>
 
 namespace mymath {
-    double deriv_h = 1e-5;
+    double deriv_h;// = 1e-5;
     template <typename Func, typename... Args>
     double deriv(double, Func, Args...);
 
-    double solve_t = 1e-10;
+    double solve_t;// = 1e-10;
     template <typename Func, typename... Args>
     double solve(double, Func, Args...);
 
-    double integ(double, double, double (*)(double), int = 100);
+    double integ_n;// = 100;
+    template <typename Func, typename... Args>
+    double integ(double, double, Func, Args...);
 
-    void slae(std::vector<double>&);
+    void slae(void*);
 };
 
 #endif //MYMATH_H

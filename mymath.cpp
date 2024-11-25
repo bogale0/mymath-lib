@@ -2,12 +2,15 @@
 #include "mymath.h"
 using mymath::deriv_h;
 using mymath::solve_t;
+using mymath::integ_n;
 
+//производная функции
 template <typename Func, typename... Args>
-double mymath::deriv(double x, Func f, Args... args) {
+inline double mymath::deriv(double x, Func f, Args... args) {
     return (f(x + deriv_h, args...) - f(x - deriv_h, args...)) / (2 * deriv_h);
 }
 
+//корень уравнения
 template <typename Func, typename... Args>
 double mymath::solve(double x, Func f, Args... args) {
     double val;
@@ -17,6 +20,52 @@ double mymath::solve(double x, Func f, Args... args) {
     return x;
 }
 
+//интеграл функции
+template <typename Func, typename... Args>
+double mymath::integ(double l, double r, Func f, Args... args) {
+    const double t = (r - l) / integ_n,
+        t1 = 0.5 * t;
+    double res = 0, dx;
+    for (double x = l + t1; x < r; x += t) {
+        dx = 0.93246951420257751 * t;
+        res += 0.17132449238057801 * (f(x - dx, args...) + f(x + dx, args...));
+        dx = 0.66120938646396499 * t;
+        res += 0.36076157304955814 * (f(x - dx, args...) + f(x + dx, args...));
+        dx = 0.23861918608139146 * t;
+        res += 0.4679139345698638 * (f(x - dx, args...) + f(x + dx, args...));
+    }
+    return t1 * res;
+}
+
+//решение СЛАУ
+int cols;
+
+void convert(std::vector<double>& matr, int i, int j) {
+    const double x = matr[j * cols + i] / matr[i * (cols + 1)];
+    for (int k = 0; k < cols; k++) {
+        matr[j * cols + k] -= x * matr[i * cols + k];
+    }
+}
+
+void mymath::slae(void* pmatr) {
+    std::vector<double>& matr = *static_cast<std::vector<double>*>(pmatr);
+    const int rows = sqrt(matr.size());
+    cols = rows + 1;
+    for (int i = 0; i < rows; i++) {
+        for (int j = rows - 1; j > i; j--) {
+            convert(matr, i, j);
+        }
+    }
+    for (int i = rows - 1; i > 0; i--) {
+        for (int j = 0; j < i; j++) {
+            convert(matr, i, j);
+        }
+    }
+    for (int i = 0; i < rows; i++) {
+        matr[i] = matr[i * cols + rows] / matr[i * (cols + 1)];
+    }
+    matr.resize(rows);
+}
 /*
 using dbvec = std::vector<double>;
 
